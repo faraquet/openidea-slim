@@ -8,7 +8,7 @@ python3 - <<'PY'
 from pathlib import Path
 from zipfile import ZIP_DEFLATED, ZipFile
 
-package = Path("faraquet.slim-0.1.0.oiplugin")
+package = Path("faraquet.slim-0.2.0.oiplugin")
 with ZipFile(package, "w", compression=ZIP_DEFLATED) as archive:
     for name in ["plugin.toml", "languages/slim.toml", "dist/plugin.wasm", "README.md", "LICENSE", "OPENIDEA-LICENSE", "THIRD_PARTY_NOTICES.txt"]:
         archive.write(name, name)

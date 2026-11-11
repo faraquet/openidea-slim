@@ -9,9 +9,11 @@ import threading
 import queue
 import tomllib
 import blake3
+import time
 
 package = Path(__file__).resolve().parent.parent
 server = Path(sys.argv[1]).resolve()
+with_lsp = "--with-lsp" in sys.argv[2:]
 files = ['plugin.toml', 'languages/slim.toml', 'dist/plugin.wasm']
 digest = blake3.blake3()
 for name in sorted(files):
@@ -25,6 +27,13 @@ with tempfile.TemporaryDirectory(prefix='slim-runtime-') as tmp:
     for name in ['sample.slim', 'sample.html.slim', 'sample.html+mobile.slim', 'sample.html+desktop.slim']:
         (project / name).write_text(sample)
     env = dict(os.environ, OPENIDEA_SERVER_HOME=str(root / 'server'), OPENIDEA_SKIP_SHELL_ENV='1', OPENIDEA_TRUSTED_ROOT=str(project))
+    if with_lsp:
+        (project / 'Gemfile').write_text('source "https://rubygems.org"\ngem "ruby-lsp", "0.27.0.beta5"\ngem "ruby-lsp-slim", "0.1.0"\n')
+        bundle_env = dict(os.environ, BUNDLE_GEMFILE=str(project / 'Gemfile'))
+        subprocess.run(['bundle', 'lock', '--local'], cwd=project, env=bundle_env, check=True)
+        env.update(BUNDLE_GEMFILE=str(project / 'Gemfile'), RUBYOPT='-rbundler/setup')
+        (project / 'helpers.rb').write_text('class SlimExample\n  def self.greeting\n    "Hello"\n  end\nend\n')
+    grants = ['process:ruby-lsp'] if with_lsp else []
     log = open(root / 'runtime.log', 'w')
     p = subprocess.Popen([str(server), '--stdio'], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=log, env=env)
     messages = queue.Queue()
@@ -59,10 +68,10 @@ with tempfile.TemporaryDirectory(prefix='slim-runtime-') as tmp:
     try:
         print('Server:', rpc('initialize', {'version': 2}), flush=True)
         invoke('open_project', path=str(project))
-        result = invoke('plugin_sync_packages', packages=[dict(id='faraquet.slim', digest=digest.hexdigest(), granted=[])], files={'faraquet.slim': [dict(path=name, data=base64.b64encode((package/name).read_bytes()).decode()) for name in files]})
+        result = invoke('plugin_sync_packages', packages=[dict(id='faraquet.slim', digest=digest.hexdigest(), granted=grants)], files={'faraquet.slim': [dict(path=name, data=base64.b64encode((package/name).read_bytes()).decode()) for name in files]})
         print('Plugin installation:', result, flush=True)
         assert result['installed'] == ['faraquet.slim'] and not result['failed'], result
-        result = invoke('plugin_sync_languages', languages=[dict(plugin='faraquet.slim', language=tomllib.loads((package/'languages/slim.toml').read_text()), granted=[])])
+        result = invoke('plugin_sync_languages', languages=[dict(plugin='faraquet.slim', language=tomllib.loads((package/'languages/slim.toml').read_text()), granted=['ruby-lsp'] if with_lsp else [])])
         print('Language registration:', result, flush=True)
         assert result['languages'] == 1 and not result['rejected'], result
         invoke('open_project', path=str(project))
@@ -78,6 +87,30 @@ with tempfile.TemporaryDirectory(prefix='slim-runtime-') as tmp:
             for expected in [('main', 'tag'), ('#content', 'attribute'), ('data-controller', 'attribute'), ('if', 'keyword'), ('@booking', 'variable'), ('name', 'functionCall'), ('12.50', 'number')]:
                 assert expected in spans, (name, expected, spans)
             print(f'PASS {name}: {len(spans)} highlight spans, expected categories and Unicode offsets verified', flush=True)
+        if with_lsp:
+            invoke('doc_open', path=str(project / 'helpers.rb'))
+            path = project / 'navigation.html.slim'
+            path.write_text('= SlimExample.greeting\n')
+            doc = invoke('doc_open', path=str(path))
+            deadline = time.monotonic() + 40
+            locations = []
+            while time.monotonic() < deadline:
+                locations = invoke('lsp_goto', doc=doc['id'], pos=dict(line=0, col=16), kind='definition')
+                if locations:
+                    break
+                time.sleep(0.5)
+            print('Definition:', locations, flush=True)
+            assert any(Path(loc['path']).resolve() == (project / 'helpers.rb').resolve() and loc['range']['start']['line'] == 1 for loc in locations), locations
+            hover = invoke('lsp_hover', request=1001, doc=doc['id'], pos=dict(line=0, col=16))
+            print('Hover:', hover, flush=True)
+            assert hover and 'greeting' in json.dumps(hover), hover
+            path = project / 'completion.html+mobile.slim'
+            path.write_text('= SlimExample.gre\n')
+            doc = invoke('doc_open', path=str(path))
+            completion = invoke('lsp_completion', request=1002, doc=doc['id'], pos=dict(line=0, col=17), trigger=None)
+            print('Completion:', completion, flush=True)
+            assert 'greeting' in json.dumps(completion), completion
+            print('PASS Ruby LSP definition, hover and completion through OpenIDEA', flush=True)
     finally:
         p.stdin.close()
         try:
@@ -86,3 +119,5 @@ with tempfile.TemporaryDirectory(prefix='slim-runtime-') as tmp:
             p.terminate()
             p.wait(timeout=5)
         log.close()
+        if sys.exc_info()[0] is not None:
+            print((root / 'runtime.log').read_text()[-12000:], file=sys.stderr)

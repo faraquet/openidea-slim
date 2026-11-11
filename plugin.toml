@@ -1,7 +1,7 @@
 id = "faraquet.slim"
 name = "Slim"
-version = "0.1.0"
-description = "Slim template highlighting: tags, attributes, Ruby expressions, interpolation, comments and filters."
+version = "0.2.0"
+description = "Slim highlighting with optional Ruby LSP navigation, hover and completion through ruby-lsp-slim."
 authors = ["faraquet"]
 homepage = "https://github.com/faraquet/openidea-slim"
 license = "MIT"

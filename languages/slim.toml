@@ -3,3 +3,9 @@ name = "Slim"
 extensions = ["slim"]
 line-comment = "/"
 indent = { tab-size = 2, insert-spaces = true }
+
+[[language-servers]]
+name = "ruby-lsp"
+command = "ruby-lsp"
+root-markers = ["Gemfile", ".ruby-version", ".rubocop.yml"]
+install-hint = "Install ruby-lsp and add ruby-lsp-slim to the bundle used by Ruby LSP. See https://github.com/faraquet/openidea-slim#ruby-language-features"
