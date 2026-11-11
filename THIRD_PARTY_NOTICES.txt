@@ -1,0 +1,8 @@
+OpenIDEA plugin SDK
+Source: https://github.com/l0ng-ai/openidea
+Release: v0.1.42
+Commit: e702e4da7b0333e81bc818e26be72db1d157ec5d
+License: Apache-2.0 (see OPENIDEA-LICENSE)
+The SDK source and WIT definitions are included without modification under vendor/openidea-plugin.
+
+The compiled plugin also uses Rust's standard library and the open-source dependencies pinned in Cargo.lock, including serde, serde_json and wit-bindgen. These projects are distributed under MIT and/or Apache-2.0 licences.

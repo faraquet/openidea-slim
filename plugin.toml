@@ -1,0 +1,14 @@
+id = "faraquet.slim"
+name = "Slim"
+version = "0.1.0"
+description = "Slim template highlighting: tags, attributes, Ruby expressions, interpolation, comments and filters."
+authors = ["faraquet"]
+homepage = "https://github.com/faraquet/openidea-slim"
+license = "MIT"
+categories = ["languages"]
+engines.openidea = "^1.5"
+wasm = "dist/plugin.wasm"
+activation = ["on-language:slim"]
+
+[[contributes.languages]]
+path = "languages/slim.toml"

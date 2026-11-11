@@ -1,0 +1,5 @@
+id = "slim"
+name = "Slim"
+extensions = ["slim"]
+line-comment = "/"
+indent = { tab-size = 2, insert-spaces = true }
