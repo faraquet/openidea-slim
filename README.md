@@ -6,7 +6,7 @@ Built and verified against OpenIDEA **0.1.42**, using plugin API **1.5**. Highli
 
 ## Install
 
-1. Download [`faraquet.slim-0.2.1.oiplugin`](https://github.com/faraquet/openidea-slim/releases/download/v0.2.1/faraquet.slim-0.2.1.oiplugin) from the [releases page](https://github.com/faraquet/openidea-slim/releases).
+1. Download [`faraquet.slim-0.2.2.oiplugin`](https://github.com/faraquet/openidea-slim/releases/download/v0.2.2/faraquet.slim-0.2.2.oiplugin) from the [releases page](https://github.com/faraquet/openidea-slim/releases).
 2. Open **Settings → Plugins** in OpenIDEA.
 3. Open the gear menu and choose **Install Plugin from Package File…**.
 4. Select the downloaded `.oiplugin` file and click **Install**. The package is unsigned, so OpenIDEA displays a trust notice; allow the optional `process:ruby-lsp` permission to enable Ruby language features. Highlighting works without it.
@@ -14,7 +14,7 @@ Built and verified against OpenIDEA **0.1.42**, using plugin API **1.5**. Highli
 
 Use the `.oiplugin` release asset for installation. GitHub's **Source code** archives are for building the plugin yourself.
 
-All filenames ending in `.slim` are recognised, including `.html.slim`, `.html+mobile.slim`, and `.html+desktop.slim`. Tabs and the project tree show an amber **S** icon for Slim files. Files associated with Slim in project settings (such as Slim-based `*.mjml` templates) inherit the same icon. Colours follow your OpenIDEA theme. The language definition uses two-space indentation and `/` for line comments.
+All filenames ending in `.slim` are recognised, including `.html.slim`, `.html+mobile.slim`, and `.html+desktop.slim`. Tabs and the project tree show a plain amber **S** icon for Slim files. Files associated with Slim in project settings (such as Slim-based `*.mjml` templates) inherit the same icon. Colours follow your OpenIDEA theme. The language definition uses two-space indentation and `/` for line comments.
 
 For example, create `example.html.slim`:
 
@@ -36,7 +36,7 @@ The plugin distinguishes tags, attributes, comments, Ruby keywords, strings, sym
 - Check the plugin details for its running status and error count. Remove another Slim language plugin if it conflicts with file detection.
 - To update, install a newer `.oiplugin` release through the same menu. To remove it, select **Slim → Uninstall** in the plugin settings.
 
-Each release includes a SHA-256 checksum. On macOS, verify a download with `shasum -a 256 -c faraquet.slim-0.2.1.oiplugin.sha256` from the folder containing both files; on Linux use `sha256sum -c` instead.
+Each release includes a SHA-256 checksum. On macOS, verify a download with `shasum -a 256 -c faraquet.slim-0.2.2.oiplugin.sha256` from the folder containing both files; on Linux use `sha256sum -c` instead.
 
 ## Highlighting
 
@@ -109,7 +109,7 @@ cargo test --locked
 sh build.sh
 ```
 
-`build.sh` requires Python 3 and writes `dist/plugin.wasm` and `faraquet.slim-0.2.1.oiplugin`. The lockfile pins Rust dependencies. The WebAssembly highlighter contains no network or filesystem calls. Ruby is required only for the optional language server.
+`build.sh` requires Python 3 and writes `dist/plugin.wasm` and `faraquet.slim-0.2.2.oiplugin`. The lockfile pins Rust dependencies. The WebAssembly highlighter contains no network or filesystem calls. Ruby is required only for the optional language server.
 
 To check token bounds and ordering against a local template directory:
 
