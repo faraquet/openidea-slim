@@ -1,6 +1,6 @@
 id = "faraquet.slim"
 name = "Slim"
-version = "0.2.0"
+version = "0.2.1"
 description = "Slim highlighting with optional Ruby LSP navigation, hover and completion through ruby-lsp-slim."
 authors = ["faraquet"]
 homepage = "https://github.com/faraquet/openidea-slim"
@@ -12,3 +12,8 @@ activation = ["on-language:slim"]
 
 [[contributes.languages]]
 path = "languages/slim.toml"
+
+[[contributes.fileIcons]]
+id = "slim"
+patterns = ["*.slim"]
+icon = "icons/slim.svg"

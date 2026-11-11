@@ -14,7 +14,7 @@ import time
 package = Path(__file__).resolve().parent.parent
 server = Path(sys.argv[1]).resolve()
 with_lsp = "--with-lsp" in sys.argv[2:]
-files = ['plugin.toml', 'languages/slim.toml', 'dist/plugin.wasm']
+files = ['plugin.toml', 'languages/slim.toml', 'dist/plugin.wasm', 'icons/slim.svg']
 digest = blake3.blake3()
 for name in sorted(files):
     digest.update(name.encode() + b'\0' + (package / name).read_bytes() + b'\0')
